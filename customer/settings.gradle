@@ -1,11 +1,3 @@
-pluginManagement {
-    repositories {
-        mavenCentral()
-        gradlePluginPortal()
-        mavenLocal()
-    }
-    plugins {
-        id "${quarkusPluginId}" version "${quarkusPluginVersion}"
-    }
-}
-rootProject.name='customer'
+rootProject.name = 'customer-domain'
+include 'customer-backend'
+include 'customer-frontend'
