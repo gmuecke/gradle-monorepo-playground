@@ -1,3 +1,33 @@
 plugins {
     id "com.github.node-gradle.node"
 }
+
+
+node {
+    // see https://github.com/node-gradle/gradle-node-plugin/blob/master/docs/usage.md#configuring-the-plugin
+    download = true
+    version = "16.15.0"
+    distBaseUrl = "https://nodejs.org/dist"
+    workDir = file("${project.projectDir}/.gradle/nodejs")
+    npmWorkDir = file("${project.projectDir}/.gradle/npm")
+    nodeProjectDir = file("${project.projectDir}")
+}
+
+defaultTasks 'build'
+
+task clean(type: NpmTask) {
+    args = ['run','clean']
+}
+task build(type: NpmTask) {
+
+    dependsOn npmInstall
+
+    inputs.files('src/','public/')
+    outputs.dir('dist/')
+
+    args = ['run','build']
+}
+task dev(type: NpmTask) {
+    dependsOn npmInstall
+    args = ['run', 'dev']
+}
