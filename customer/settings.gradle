@@ -1,3 +1,0 @@
-rootProject.name = 'customer-domain'
-include 'customer-backend'
-include 'customer-frontend'

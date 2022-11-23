@@ -1,2 +1,16 @@
+pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+        mavenLocal()
+    }
+    plugins {
+        id "${quarkusPluginId}" version "${quarkusPluginVersion}"
+        id "com.github.node-gradle.node" version "3.5.0"
+    }
+}
+
 rootProject.name = 'gradle-monorepo-playground'
-include 'customer'
+
+include 'customer:customer-backend',
+        'customer:customer-frontend'

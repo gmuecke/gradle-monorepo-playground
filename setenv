@@ -1,0 +1,15 @@
+#!/bin/sh
+# this file sets up a terminal environment for this project
+# you may automatically add this to your .bashrc file using
+#  [[ -f "setenv" ]] && . setenv
+#
+
+# set the terminal type to properly display picocli colors & layout
+# which is used by quarkus cli
+export TERM=ansi
+
+MONOREPO_BASE=$(dirname $(realpath "${BASH_SOURCE:-$0}"))
+
+# define the gradle as alias to use the wrapped gradle binary
+# in the whole monorepo
+alias gradle='$MONOREPO_BASE/gradlew'
