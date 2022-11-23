@@ -1,0 +1,11 @@
+plugins {
+    id "io.github.fstaudt.hugo"
+}
+
+hugo {
+    //https://github.com/fstaudt/gradle-hugo-plugin
+    version = "0.106.0"
+    sourceDirectory = "."
+}
+
+defaultTasks 'hugoBuild'
