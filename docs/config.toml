@@ -1,3 +1,11 @@
-baseURL = 'http://example.org/'
+baseURL = 'http://localhost:1080/'
 languageCode = 'en-us'
 title = 'My New Hugo Site'
+theme = "ace-documentation-1.0.4"
+
+[[menu.shortcuts]]
+name = "<i class='fab fa-github'></i>"
+url = "https://github.com/vantagedesign/ace-documentation"
+weight = 10
+
+

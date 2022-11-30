@@ -1,11 +1,105 @@
 plugins {
     id "io.github.fstaudt.hugo"
+    id 'com.bmuschko.docker-remote-api'
 }
 
-hugo {
+repositories {
+
+    ivy {
+        url 'https://github.com/'
+
+        patternLayout {
+            //themeUrl = 'https://github.com/vantagedesign/ace-documentation/archive/refs/tags/1.0.4.zip'
+            artifact '/[organisation]/[module]/archive/refs/tags/[revision].[ext]'
+        }
+
+        // This is required in Gradle 6.0+ as metadata file (ivy.xml) is mandatory. Docs linked below this code section
+        metadataSources { artifact() }
+    }
+}
+
+configurations {
+    compile
+}
+
+dependencies {
+    //This maps to the pattern: [organisation]:[module]:[revision]:[classifier]@[ext]
+    compile 'vantagedesign:ace-documentation:1.0.4@zip'
+}
+
+/**
+ * Unzip the theme from the downloaded dependency into the build folder
+ * so that hugo can pick it up.
+ */
+task unzipTheme(type: Copy) {
+
+    outputs.dir('build/themes')
+
+    def zipPath = project.configurations.compile.find {it.name.startsWith("ace-documentation") }
+
+    from zipTree(file(zipPath))
+    into file("${buildDir}/themes/")
+}
+
+/**
+ * Runs hugo to compile the static documentation into thml files
+ */
+tasks.hugoBuild {
+    dependsOn('unzipTheme')
+
+    inputs.files('archetypes/','content/','data/', 'layouts/', 'resources/','static/','themes/')
+    outputs.dir('build/docker/public')
+
     //https://github.com/fstaudt/gradle-hugo-plugin
     version = "0.106.0"
-    sourceDirectory = "."
+    sourceDirectory = new File(".")
+    outputDirectory = layout.buildDirectory.file("docker/public/").get().asFile
+    args = '--themesDir build/themes'
 }
 
-defaultTasks 'hugoBuild'
+tasks.hugoServer {
+    dependsOn('unzipTheme')
+
+    inputs.files('archetypes/','content/','data/', 'layouts/', 'resources/','static/','themes/')
+    outputs.dir('build/docker/public')
+
+    //https://github.com/fstaudt/gradle-hugo-plugin
+    version = "0.106.0"
+    baseURL = "http://localhost:1313/documentation/"
+    args = "--source ${layout.projectDirectory.asFile} --themesDir build/themes"
+}
+
+/**
+ * Copies the docker file into the docker build folder already containing the static html site
+ */
+tasks.register('copyDockerfile', Copy) {
+
+    dependsOn('hugoBuild')
+    outputs.dir('build/docker')
+
+    from file("Dockerfile")
+    into layout.buildDirectory.dir("docker")
+}
+
+
+/**
+ * Builds the docker images
+ */
+import com.bmuschko.gradle.docker.tasks.image.*
+task docker(type: DockerBuildImage) {
+
+    //https://bmuschko.github.io/gradle-docker-plugin/current/user-guide/#usage
+    dependsOn('copyDockerfile')
+
+    images.add('docs:latest')
+}
+
+task build {
+    dependsOn('docker')
+}
+
+task dev {
+    dependsOn('hugoServer')
+}
+
+defaultTasks 'docker'
